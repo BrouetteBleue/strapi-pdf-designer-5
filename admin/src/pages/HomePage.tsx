@@ -1,4 +1,4 @@
-import React, { memo, useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Plus } from '@strapi/icons';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, Button, DesignSystemProvider, darkTheme} from '@strapi/design-system';
@@ -34,7 +34,7 @@ const HomePage = () => {
 
   return (
     <Page.Main>
-        <DesignSystemProvider theme={darkTheme}>
+        {/* <DesignSystemProvider > */}
           <Layouts.Header
             primaryAction={
               <Button startIcon={<Plus />} onClick={() => navigate({ pathname: getUrl(`design/new`) })}>
@@ -66,9 +66,9 @@ const HomePage = () => {
             </Tabs.Root>
               
           </Layouts.Content>
-        </DesignSystemProvider>
+        {/* </DesignSystemProvider> */}
     </Page.Main>
   );
 };
 
-export default memo(HomePage);
+export { HomePage };

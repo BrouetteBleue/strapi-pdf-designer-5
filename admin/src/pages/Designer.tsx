@@ -1,14 +1,14 @@
 import React, { useCallback, useState, useEffect, memo, useRef, StrictMode } from 'react';
 import { useNotification } from "@strapi/strapi/admin";
 import { Page } from "@strapi/admin/strapi-admin";
-import { Box, Tabs, Button, Textarea, IconButton, DesignSystemProvider, darkTheme, Field, } from '@strapi/design-system';
+import { Box, Tabs, Button, Textarea, IconButton, DesignSystemProvider, darkTheme, Field } from '@strapi/design-system';
 import { useNavigate, useParams} from 'react-router-dom';
 import { isEmpty, isFinite } from 'lodash';
 import { ArrowLeft } from '@strapi/icons';
 import { getUrl, standardEmailRegistrationTemplate } from "../constants";
 import { PDFConfig, PDFTemplate } from "../types";
 import striptags from 'striptags';
-import EmailEditor, { EditorRef } from 'react-email-editor';
+import { EditorRef, EmailEditor } from "react-email-editor";
 import styled from 'styled-components';
 import { useTr } from "../hooks/useTr";
 import { shallowIsEqual } from "../utils/helpers";
@@ -20,6 +20,7 @@ import {
 import { pluginId } from '../pluginId';
 import { getMessage } from '../utils/getMessage';
 import ImportSingleDesign from '../components/ImportSingleDesign';
+
 const __DEV__ = process.env.NODE_ENV !== 'production';
 
 const DesignerContainer = styled.div`
@@ -54,7 +55,7 @@ const Bar = styled.div`
 `;
 
 
-const Designer  = ({ isCore = false }: { isCore?: boolean }) => {
+const Designer  = () => {
   const pdfEditorRef = useRef<EditorRef>(null);
   const navigate = useNavigate();
   const translate = useTr();
@@ -68,6 +69,7 @@ const Designer  = ({ isCore = false }: { isCore?: boolean }) => {
   const [editorOptions, setEditorOptions] = useState<PDFConfig>();
   const { toggleNotification } = useNotification();
 
+  
   const saveDesign = async () => {
     if (!coreEmailType && !templateData?.templateReferenceId) {
       
@@ -141,7 +143,8 @@ const Designer  = ({ isCore = false }: { isCore?: boolean }) => {
     }
   };
 
-  const preview = (templateReferenceId: number) => {
+  const preview = async (templateReferenceId: number) => {
+    await saveDesign()
     const baseUrl = window.location.origin; // get the base uri
     const pdfUrl = `${baseUrl}/pdf-designer-5/generate-pdf/${templateReferenceId}`;
 
@@ -214,12 +217,12 @@ const Designer  = ({ isCore = false }: { isCore?: boolean }) => {
     }
 
   useEffect(() => {
-    if (!templateId && !coreEmailType) {
-      console.error("No templateId or coreEmailType found");
+    if (!templateId) {
+      console.error("No templateId");
       return;
     }
     init();
-  }, [templateId, coreEmailType]);
+  }, [templateId]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -232,8 +235,8 @@ const Designer  = ({ isCore = false }: { isCore?: boolean }) => {
   return (
     <Page.Main>
       <Page.Title>{translate("page.design.title")}</Page.Title>
-      <DesignerContainer>
-      <DesignSystemProvider theme={darkTheme}>
+      {/* <DesignerContainer> */}
+      {/* <DesignSystemProvider theme={darkTheme}> */}
         <Header>
           <IconButton
             style={{ marginTop: "19px", padding: "10px" }}
@@ -244,33 +247,30 @@ const Designer  = ({ isCore = false }: { isCore?: boolean }) => {
           </IconButton>
         
           <Bar>
-            {!isCore && (
-              <Box padding={0} style={{ width: 260, paddingRight: 10 }}>
-                <Field.Root required error={errorRefId}>
-                  <Field.Label>{translate("input.label.templateReferenceId")}</Field.Label>
-                  <Field.Input
-                    placeholder={translate("input.placeholder.templateReferenceId")}
-                    name="templateReferenceId"
-                    value={templateData?.templateReferenceId ?? ""}
-                    type="number"
-                    disabled={isCore}
-                    onChange={(e: any) =>
-                      setTemplateData((state) => ({
-                        ...(state || ({} as any)),
-                        templateReferenceId:
-                          e.target.value === ""
-                            ? ""
-                            : isFinite(parseInt(e.target.value))
-                              ? parseInt(e.target.value)
-                              : (state?.templateReferenceId ?? ""),
-                      }))
-                    }
-                  />
-                  <Field.Error />
-                </Field.Root>
-              </Box>
-            )}
-            <Box padding={0} style={{ width: isCore ? 450 : '60%', paddingRight: 10 }}>
+            <Box padding={0} style={{ width: 260, paddingRight: 10 }}>
+              <Field.Root required error={errorRefId}>
+                <Field.Label>{translate("input.label.templateReferenceId")}</Field.Label>
+                <Field.Input
+                  placeholder={translate("input.placeholder.templateReferenceId")}
+                  name="templateReferenceId"
+                  value={templateData?.templateReferenceId ?? ""}
+                  type="number"
+                  onChange={(e: any) =>
+                    setTemplateData((state) => ({
+                      ...(state || ({} as any)),
+                      templateReferenceId:
+                        e.target.value === ""
+                          ? ""
+                          : isFinite(parseInt(e.target.value))
+                            ? parseInt(e.target.value)
+                            : (state?.templateReferenceId ?? ""),
+                    }))
+                  }
+                />
+                <Field.Error />
+              </Field.Root>
+            </Box>
+            <Box padding={0} style={{ width:'60%', paddingRight: 10 }}>
               <Field.Root required>
                 <Field.Label>{translate("input.placeholder.subject")}</Field.Label>
                 <Field.Input
@@ -335,7 +335,7 @@ const Designer  = ({ isCore = false }: { isCore?: boolean }) => {
                   }}
                 >
                   {serverConfigLoaded && (
-                    <StrictMode>
+                    // <StrictMode>  ** this may not work with react 18
                        <EmailEditor
                         ref={pdfEditorRef}
                         onLoad={onLoadHandler}
@@ -343,7 +343,8 @@ const Designer  = ({ isCore = false }: { isCore?: boolean }) => {
                         minHeight='293mm'
                         style={{background: '#000000'}}
                       />
-                    </StrictMode>
+                   // </StrictMode> 
+                    
                   )}
                 </Box>
               </Tabs.Content>
@@ -358,10 +359,10 @@ const Designer  = ({ isCore = false }: { isCore?: boolean }) => {
               </Tabs.Content>
             </Box>
           </Tabs.Root>
-      </DesignSystemProvider>
-      </DesignerContainer>  
+      {/* </DesignSystemProvider> */}
+      {/* </DesignerContainer>   */}
     </Page.Main>
   );
 };
 
-export default memo(Designer , shallowIsEqual);
+export default memo(Designer);

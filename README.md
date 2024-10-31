@@ -4,8 +4,15 @@ This plugin is a fork of the Strapi Plugin Email Designer. It is used to create 
 
 [Strapi-plugin-email-designer](https://www.npmjs.com/package/strapi-plugin-email-designer/v/1.1.2)
 
+
 ## Requirement :
-You need a node version between 20.x.x and a Strapi version >= 5.0.0
+You need a node version +18 and a Strapi v5 project
+
+## Version
+
+The plugin structure from strapi v5 is way different from the v4, so this plugin is only compatible with v5 use the [Strapi-plugin-email-designer](https://www.npmjs.com/package/strapi-plugin-email-designer/v/1.1.2) for v4
+
+
 
 ## Installation
 
@@ -21,6 +28,26 @@ return {
     'pdf-designer-5': {
       enabled: true,
     },
+}
+```
+
+## Configuration
+
+By default, Strapi has strict security settings. You need to add the following to your config/middleware.ts file:
+
+```ts
+{
+  name: "strapi::security",
+  config: {
+    contentSecurityPolicy: {
+      useDefaults: true,
+      directives: {
+        "script-src": ["'self'", "'unsafe-inline'", "editor.unlayer.com"],
+        "frame-src": ["'self'", "editor.unlayer.com"],
+        upgradeInsecureRequests: null,
+      },
+    },
+  },
 }
 ```
 

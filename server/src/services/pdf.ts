@@ -95,8 +95,16 @@ export default ({ strapi }: { strapi: StrapiInstance }) => {
       );
 
       const options = {
-        footerTemplate: footerString
+        footerTemplate: footerString,
+        margin: {
+          top: "20mm",
+          bottom: "20mm",
+          left: "15mm",
+          right: "15mm",
+        },
+        format: 'A4',
       };
+  
 
       const files = { content: decode(templatedAttributes.html as string) };
       const bufferPDF = await html_to_pdf.generatePdf(files, options);
