@@ -319,7 +319,7 @@ const Designer = ({ isCore = false }: { isCore?: boolean }) => {
         </Field.Root>
       </Box>
       <Box style={{ width: "100%", maxWidth: "100px" }}>
-        <ImportSingleDesign emailEditorRef={emailEditorRef} />
+        <ImportSingleDesign emailEditorRef={emailEditorRef as any} />
       </Box>
       <Box style={{ width: "100%" }}>
         <Button

@@ -1,5 +1,5 @@
-import { FaFilePdf } from "react-icons/fa6";
+import { FilePdf } from '@strapi/icons';
 
-const PluginIcon = () => <FaFilePdf size={18} />;
+const PluginIcon = () => <FilePdf />;
 
 export { PluginIcon };
