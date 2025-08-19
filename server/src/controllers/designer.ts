@@ -12,7 +12,22 @@ const isValidRefId = yup
 
 export async function htmlToPdf(html: string) {
   console.log("Generating PDF from HTML content...");
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch(
+    {
+
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+        '--disable-extensions',
+        '--disable-software-rasterizer',
+      ],
+      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium-browser',
+      headless: true,
+
+    }
+  );
   const page = await browser.newPage();
   await page.setContent(html);
   const pdf = await page.pdf({ format: "A4" });
@@ -292,20 +307,20 @@ const controller = ({ strapi }: { strapi: Core.Strapi }) => ({
     data = {
       ...(data && data.options
         ? {
-            from: data.options.from,
-            message: data.options.message,
-            bodyHtml: data.options.message
+          from: data.options.from,
+          message: data.options.message,
+          bodyHtml: data.options.message
+            .replace(/<%|&#x3C;%/g, "{{")
+            .replace(/%>|%&#x3E;/g, "}}"),
+          bodyText: htmlToText(
+            data.options.message
               .replace(/<%|&#x3C;%/g, "{{")
               .replace(/%>|%&#x3E;/g, "}}"),
-            bodyText: htmlToText(
-              data.options.message
-                .replace(/<%|&#x3C;%/g, "{{")
-                .replace(/%>|%&#x3E;/g, "}}"),
-              {
-                wordwrap: 130,
-              }
-            ),
-          }
+            {
+              wordwrap: 130,
+            }
+          ),
+        }
         : {}),
       coreEmailType,
       design: data.design,
